@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  # Web Server Service
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+      - db
+
+  db:
+    image: postgres
+    container_name: postgres
+    volumes:
+      - ./postgresql/data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: new_management_system
+      POSTGRES_USER: talhazee
+      POSTGRES_PASSWORD: talhazee
+
+  # Application Service
+  app:
+    container_name: blog
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www
+    ports:
+      - "9000:9000"
+    working_dir: /var/www
+
+  react-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+
+  # python-scripts:
+  #   build:
+  #     context: ./src
+  #     dockerfile: Dockerfile.python
+  #   volumes:
+  #     - ./src:/app
+  # Additional configurations for your Python service
